@@ -1,7 +1,7 @@
 {
   "name": "proxy-api-sdf",
   "version": "1.0.0",
-  "description": "Servidor intermediário para contornar CORS e acessar API pública",
+  "description": "Proxy para contornar CORS usando API pública",
   "main": "proxy.js",
   "scripts": {
     "start": "node proxy.js"
