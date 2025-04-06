@@ -22,8 +22,19 @@ app.get('/query', async (req, res) => {
       body: JSON.stringify({ prompt: userQuery })
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get('content-type');
+    const isJson = contentType && contentType.includes('application/json');
 
+    if (!isJson) {
+      const text = await response.text();
+      return res.status(502).json({
+        error: 'Resposta inválida da API da IA',
+        contentType,
+        body: text
+      });
+    }
+
+    const data = await response.json();
     res.json({ response: data.text });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar resposta da IA.', details: error.message });
