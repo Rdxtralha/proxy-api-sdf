@@ -1,17 +1,14 @@
 {
   "name": "proxy-api-sdf",
   "version": "1.0.0",
-<<<<<<< HEAD
-  "description": "Proxy para contornar CORS usando API pública",
-=======
-  "type": "module",
->>>>>>> 5a97222 (fix: adiciona node-fetch e type module)
+  "description": "Proxy para contornar CORS ao usar API pública de IA",
   "main": "proxy.js",
+  "type": "module",
   "scripts": {
     "start": "node proxy.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^4.18.4",
     "node-fetch": "^3.3.2",
     "cors": "^2.8.5"
   }
