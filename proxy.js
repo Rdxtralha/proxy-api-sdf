@@ -1,43 +1,45 @@
-import express from 'express';
-import fetch from 'node-fetch';
-import cors from 'cors';
+const express = require("express");
+const cors = require("cors");
+const axios = require("axios");
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const port = process.env.PORT || 1000;
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/query', async (req, res) => {
-  const userQuery = req.query.texto;
+app.get("/", (req, res) => {
+  res.send("Proxy da IA rodando 🚀");
+});
 
-  if (!userQuery) {
-    return res.status(400).json({ error: 'Parâmetro "texto" é obrigatório.' });
+app.post("/query", async (req, res) => {
+  const { texto } = req.body;
+
+  if (!texto) {
+    return res.status(400).json({ error: "Parâmetro 'texto' ausente." });
   }
 
   try {
-    const url = `https://yuxinze-apis.onrender.com/ias/deepseek?texto=${encodeURIComponent(userQuery)}`;
+    const response = await axios.get("https://yuxinze-apis.onrender.com/ias/gemini", {
+      params: {
+        prompt: texto,
+      },
+    });
 
-    const response = await fetch(url);
-    const contentType = response.headers.get('content-type');
-    const isJson = contentType && contentType.includes('application/json');
-
-    if (!isJson) {
-      const text = await response.text();
-      return res.status(502).json({
-        error: 'Resposta inválida da API da IA',
-        contentType,
-        body: text
+    if (response.data?.status && response.data?.resultado?.resposta) {
+      return res.json({ resposta: response.data.resultado.resposta.trim() });
+    } else {
+      return res.status(500).json({
+        error: "Resposta inválida da API da IA",
+        detalhes: response.data,
       });
     }
-
-    const data = await response.json();
-    res.json({ response: data.resultado });
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar resposta da IA.', details: error.message });
+    console.error("Erro ao consultar a IA:", error.message);
+    res.status(500).json({ error: "Erro ao consultar a IA", detalhes: error.message });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Proxy rodando na porta ${PORT}`);
+app.listen(port, () => {
+  console.log(`🟢 Proxy rodando em http://localhost:${port}`);
 });
