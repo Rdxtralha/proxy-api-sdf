@@ -3,28 +3,33 @@ import fetch from 'node-fetch';
 import cors from 'cors';
 
 const app = express();
-const port = process.env.PORT || 10000;
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
+app.use(express.json());
 
-app.get('/', async (req, res) => {
-  const texto = req.query.texto;
-  if (!texto) return res.status(400).json({ erro: 'Texto não fornecido' });
+app.get('/query', async (req, res) => {
+  const userQuery = req.query.q;
+
+  if (!userQuery) {
+    return res.status(400).json({ error: 'Parâmetro "q" (query) é obrigatório.' });
+  }
 
   try {
     const response = await fetch('https://yuxinze-apis.onrender.com/ias/deepseek', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: texto })
+      body: JSON.stringify({ prompt: userQuery })
     });
 
     const data = await response.json();
-    res.json({ resposta: data.result });
+
+    res.json({ response: data.text });
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar resposta da IA', detalhe: error.message });
+    res.status(500).json({ error: 'Erro ao buscar resposta da IA.', details: error.message });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Proxy rodando na porta ${port}`);
+app.listen(PORT, () => {
+  console.log(`Proxy rodando na porta ${PORT}`);
 });
