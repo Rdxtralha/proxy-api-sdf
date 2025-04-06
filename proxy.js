@@ -1,26 +1,20 @@
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
+const express = require("express");
+const cors = require("cors");
+const axios = require("axios");
 
 const app = express();
-const port = process.env.PORT || 1000;
-
-// 🔓 Libera requisições de qualquer origem
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-app.post("/ias/gemini", async (req, res) => {
-  const { prompt } = req.body;
-
+app.post("/query", async (req, res) => {
   try {
-    const response = await fetch("https://yuxinze-apis.onrender.com/ias/gemini?prompt=" + encodeURIComponent(prompt));
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao consultar a IA." });
+    const resposta = await axios.post("http://speedhosting.cloud:2009", req.body);
+    res.json(resposta.data);
+  } catch (err) {
+    console.error(err?.response?.data || err.message);
+    res.status(500).json({ error: "Erro ao consultar IA." });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
-});
+const PORT = process.env.PORT || 1000;
+app.listen(PORT, () => console.log(`Proxy ativo na porta ${PORT}`));
