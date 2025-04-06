@@ -9,26 +9,22 @@ app.use(express.json());
 app.post("/query", async (req, res) => {
   try {
     const { texto } = req.body;
+    if (!texto) return res.status(400).json({ error: "Parâmetro 'texto' ausente." });
 
-    if (!texto) {
-      return res.status(400).json({ error: "Parâmetro 'texto' ausente." });
-    }
-
-    const resposta = await axios.post("https://yuxinze-apis.onrender.com/ias/gemini", {
-      prompt: texto
+    // Faz GET com o texto na URL
+    const resposta = await axios.get("https://yuxinze-apis.onrender.com/ias/gemini", {
+      params: { prompt: texto }
     });
 
-    const resultadoIA = resposta.data?.resultado?.resposta || resposta.data;
-
-    res.json({ resposta: resultadoIA });
+    res.json({ response: resposta.data.resultado?.resposta || resposta.data });
   } catch (err) {
-    console.error("❌ Erro ao consultar IA:", err?.response?.data || err.message);
+    console.error(err?.response?.data || err.message);
     res.status(500).json({
       error: "Erro ao consultar IA.",
-      detalhes: err?.response?.data || err.message
+      details: err?.response?.data || err.message
     });
   }
 });
 
 const PORT = process.env.PORT || 1000;
-app.listen(PORT, () => console.log(`🚀 Proxy ativo na porta ${PORT}`));
+app.listen(PORT, () => console.log(`Proxy ativo na porta ${PORT}`));
