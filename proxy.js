@@ -9,19 +9,16 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/query', async (req, res) => {
-  const userQuery = req.query.q;
+  const userQuery = req.query.texto;
 
   if (!userQuery) {
-    return res.status(400).json({ error: 'Parâmetro "q" (query) é obrigatório.' });
+    return res.status(400).json({ error: 'Parâmetro "texto" é obrigatório.' });
   }
 
   try {
-    const response = await fetch('https://yuxinze-apis.onrender.com/ias/deepseek', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: userQuery })
-    });
+    const url = `https://yuxinze-apis.onrender.com/ias/deepseek?texto=${encodeURIComponent(userQuery)}`;
 
+    const response = await fetch(url);
     const contentType = response.headers.get('content-type');
     const isJson = contentType && contentType.includes('application/json');
 
@@ -35,7 +32,7 @@ app.get('/query', async (req, res) => {
     }
 
     const data = await response.json();
-    res.json({ response: data.text });
+    res.json({ response: data.resultado });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar resposta da IA.', details: error.message });
   }
